@@ -1,0 +1,17 @@
+  function calculateCompoundInterest() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const rate = parseFloat(document.getElementById('rate').value) / 100;
+            const time = parseFloat(document.getElementById('time').value);
+            const compound = parseFloat(document.getElementById('compound').value);
+
+            if (isNaN(principal) || isNaN(rate) || isNaN(time)) {
+                alert('Please enter valid numbers for all fields.');
+                return;
+            }
+
+            const amount = principal * Math.pow((1 + rate/compound), (compound * time));
+            const interest = amount - principal;
+
+            document.getElementById('compoundResult').innerHTML = `
+                Final Amount: $${amount.toFixed(2)}<br>
+                Total Interest: $${interest
