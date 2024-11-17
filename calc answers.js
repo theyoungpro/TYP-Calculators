@@ -75,3 +75,4 @@ function calculateContributions() {
         Recommended IRA contribution: $${recommendedIRA.toFixed(2)} per year
     `;
 }
+   alert("JavaScript file loaded!");
