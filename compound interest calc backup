@@ -1,0 +1,118 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const calculateBtn = document.getElementById('calculateBtn');
+  if (calculateBtn) {
+    calculateBtn.addEventListener('click', calculate);
+  }
+
+  function calculate() {
+    const initial = parseFloat(document.getElementById('initial').value);
+    const monthly = parseFloat(document.getElementById('monthly').value);
+    const rate = parseFloat(document.getElementById('rate').value) / 100;
+    const years = parseInt(document.getElementById('years').value);
+    const compound = parseInt(document.getElementById('compound').value);
+
+    let total = initial;
+    let contributions = initial;
+    const data = [];
+
+    for (let i = 0; i <= years; i++) {
+      data.push({
+        year: i,
+        total: total,
+        contributions: contributions,
+        interest: total - contributions
+      });
+
+      for (let j = 0; j < compound; j++) {
+        total *= (1 + rate / compound);
+        if (i < years) {
+          total += (monthly * 12 / compound);
+          contributions += (monthly * 12 / compound);
+        }
+      }
+    }
+
+    const finalTotal = data[years].total;
+    const finalContributions = data[years].contributions;
+    const finalInterest = data[years].interest;
+
+    const resultsDiv = document.getElementById('results');
+resultsDiv.innerHTML = `
+  <h3>Results after ${years} years:</h3>
+  <p><strong>Total Amount: ${formatCurrency(finalTotal)}</strong></p>
+  <p>Total Contributions: ${formatCurrency(finalContributions)}</p>
+  <p>Total Interest Earned: ${formatCurrency(finalInterest)}</p>
+`;
+
+
+    drawChart(data);
+  }
+
+  function drawChart(data) {
+    const ctx = document.getElementById('growthChart');
+    if (ctx) {
+      if (window.myChart) {
+        window.myChart.destroy();
+      }
+
+      window.myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.map(d => `Year ${d.year}`),
+          datasets: [
+            {
+              label: 'Contributions',
+              data: data.map(d => d.contributions),
+              backgroundColor: 'rgba(75, 192, 192, 0.6)'
+            },
+            {
+              label: 'Interest',
+              data: data.map(d => d.interest),
+              backgroundColor: 'rgba(153, 102, 255, 0.6)'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              stacked: true,
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  if (context.parsed.y !== null) {
+                    label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                  }
+                  return label;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+  }
+});
+  function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-US', { 
+    style: 'currency', 
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount);
+}
+
+</script>
